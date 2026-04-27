@@ -1,5 +1,0 @@
-f = open("chat_history.txt","r")
-data = f.read()
-print(data)
-print(type(data))
-f.close()
