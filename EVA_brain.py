@@ -2,39 +2,57 @@ import os
 import requests
 from dotenv import load_dotenv
 
-# 1. Initialize the Vault
+
 load_dotenv()
-TOKEN = os.getenv("GITHUB_TOKEN")
 NAME = os.getenv("ASSISTANT_NAME", "EVA")
+
+def save_memory(user_input, ai_response):
+    """Saves the conversation to a text file."""
+    with open("chat_history.txt", "a", encoding="utf-8") as file:
+        file.write(f"User: {user_input}\n")
+        file.write(f"{NAME}: {ai_response}\n")
+        file.write("-" * 20 + "\n")
 
 def speak_to_eva(prompt):
     url = "http://localhost:11434/api/generate"
     payload = {
-        "model": "deepseek-r1:8b",  # UPDATED TO YOUR DOWNLOADED BRAIN
+        "model": "deepseek-r1:8b",
         "prompt": prompt,
         "stream": False
     }
-
     try:
         response = requests.post(url, json=payload)
         full_response = response.json().get("response", "")
         
-        # R1 models include their "thoughts" in the output. 
-        # This part removes the internal 'thinking' so you just see the answer.
+        # Clean the Reasoning (R1) output
         if "</think>" in full_response:
             return full_response.split("</think>")[-1].strip()
         return full_response
     except Exception as e:
-        return f"Error connecting to EVA's brain: {e}"
+        return f"Error: {e}"
 
 if __name__ == "__main__":
-    print(f"🚀 {NAME} (Reasoning Mode) Online.")
+    # This is MY custom startup sequence
+    print(f"--- ⚡ EVA RESEARCH CORE v1.0 ⚡ ---")
+    print(f"Owner: Mahesh | Status: Online")
     
-    if not TOKEN:
-        print("⚠️ Warning: GITHUB_TOKEN not found in .env vault.")
-    
-    user_query = input(f"\n[Mahesh]: ")
-    print(f"\n[{NAME} is reasoning...]")
-    
-    answer = speak_to_eva(user_query)
-    print(f"\n[{NAME}]: {answer}")
+    if os.path.exists("chat_history.txt"):
+        print("\n--- Previous Conversation ---")
+        with open("chat_history.txt", "r", encoding="utf-8") as f:
+            print(f.read())
+        print("--- End of History ---\n")
+
+    while True:
+        user_query = input(f"[Mahesh]: ")
+
+        if user_query.lower() in ["exit", "quit", "bye"]:
+            print(f"👋 {NAME}: Goodbye, Mahesh!")
+            break
+            
+        print(f"\n[{NAME} is thinking...]")
+        answer = speak_to_eva(user_query)
+        
+        print(f"\n[{NAME}]: {answer}")
+        
+        # ACTIVATE MEMORY
+        save_memory(user_query, answer)

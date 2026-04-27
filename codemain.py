@@ -2,7 +2,7 @@ def assistant_brain(user_input):
     user_input = user_input.lower()
     
     if "hello" in user_input:
-        return "Hello Researcher! System is active on Asus 16X."
+        return "Hello Sir! System is active on Asus 16X."
     elif "math" in user_input:
         return "Linear Algebra is the heart of AI. Shall we study matrices?"
     else:
